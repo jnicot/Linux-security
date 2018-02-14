@@ -1,0 +1,19 @@
+
+#Limit ping to 1 every 10 sec
+>iptables -A INPUT -p icmp --icmp-type echo-request -m recent --set
+>iptables -A INPUT -p icmp --icmp-type echo-request -m recent --update --seconds 10 --hitcount 2 -j REJECT
+
+# Stop any incoming traffic except dhcp, dns and ssh
+>firewall-cmd --zone=public --permanent --add-service=dhcp
+>firewall-cmd --zone=public --permanent --add-service=dns
+>firewall-cmd --zone=public --permanent --add-service=ssh
+
+
+# Allow on https as outgoing traffic
+>firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 –p tcp --dport=443 –j ACCEPT
+>firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 –p udp --dport=53 –j ACCEPT
+>firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+>firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 1 –j DROP
+
+# Reroute all outgoing http toward and address where a mini server will return and error
+>firewall-cmd --direct --add-rule ipv4 nat OUTPUT 0 –p tcp --dport 80 –j DNAT --to-destination 127.0.0.1:443

@@ -1,0 +1,71 @@
+#Change to enforced mode
+>setenforce 1
+
+#Checkit
+>getenforce
+
+#To see SEL restrictions
+>semanage boolean -l | less
+
+#To check each context of each file
+>ls -Z /etc/*.conf
+  ...
+  -rw-r--r--. root root system_u:object_r:locale_t:s0    /etc/locale.conf
+  ...
+#Security context : system_u:object_r:etc_t:s0
+
+#Create a file in apache server
+>vi /var/www/html/index.html
+>chmod -R 755 /var/www
+>service httpd restart
+>curl localhost/index.html
+
+#Change the context of the file by var_t instead of httpd_sys_content_t
+chcon --type var_t /var/www/html/index.html
+
+#Normally, get an forbidden error
+>>curl localhost/index.html
+
+#To restore parameters
+>restorecon -v /var/www/html/index.html
+
+
+--Working with users--
+guest_u: This user doesn't have access to X-Window system (GUI) or networking and can't execute su / sudo command.
+xguest_u: This user has access to GUI tools and networking is available via Firefox browser.
+user_u: This user has more access than the guest accounts (GUI and networking), but can't switch users by running su or sudo.
+staff_u: Same rights as user_u, except it can execute sudo command to have root privileges.
+system_u: This user is meant for running system services and not to be mapped to regular user accounts.
+
+#Add regularuser to SELinux user_u
+>semanage login -a -s user_u regularuser
+
+#Then, cannot switch user :
+>su - switcheduser
+  Mot de passe :
+  su: Échec d'authentification
+
+--Restricting permissions to run scripts--
+#To restrict file execution
+root>setsebool allow_guest_exec_content off
+
+#then try
+guestuser>./myscript.sh
+  -bash: ./myscript.sh: Permission non accordée
+
+#Check the log
+>cat /var/log/messages
+#or
+>cat /var/log/audit/audit.log
+
+--Restricting access to services--
+#add rights to all user in the sudoers file
+root>visudo
+restricteduser ALL=(ALL)      ALL
+
+#Map the SELinux users user_u to restricteduser
+root>semanage login -a -s user_u restricteduser
+
+#Try
+restricteduser> sudo service httpd start
+  sudo: PERM_SUDOERS: setresuid(-1, 1, -1): Operation not permitted

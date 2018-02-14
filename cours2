@@ -1,0 +1,98 @@
+Cgroup Seccomp
+
+capability to monitor what is going on
+->goal is to limit access to ressources to slow down an attaquant
+
+DAC
+  way to limit access based on users own
+  possibility for an user to set a security policy on a object (ex:file)
+
+
+Extended ACL
+  To ban some utilities or tools
+
+-> but ACL & DAC useless for network drive, or limit sharing information
+
+Disk quota
+  allow to limit disk use space
+  restrict the space used by an user on a given disk
+  works by mount points
+  -> put limitations on physical or logical partitions
+  used uid guid
+  usable on any file system (network file system)
+
+  Use 2 tools : usrquota or grpquota
+  quota stored in etc/fstab
+  hard/soft limit
+  hard : limite writing data to disk by users without exceptions
+  soft : send an alert when an user exceed disk space. No physical restrictions, grace time can be configured
+  -> advice to not put it to long otherwise users considered it as taken
+  by default, quotas on 90% of the use of non root user
+
+  Monitoring/reporting
+  tool repquota
+  permanent monitoring : quotacheck, warnquota
+  crontab : registe tasks that has to be executed
+  -> enforce file using partition
+  -> capability to report it automaticly if user are close to their quotas
+  if u established quotas as general rules (for log files, created files, received files)
+  -> garanty that in case of an attack, the attack application will not have the capability to fill the entire partition
+  -> basic but efficient
+  -> limit
+
+Cgroup
+  end of use, efficient
+  you will limited if you try to do more than what you have been allowed
+  for numbers of the limit, you will have the capatibility to use entirely the ress until someon else is trying to access it
+  garanty that a malware executed tasks will have restrictions
+  -> we will have possibility to go back the system, repair and kill the malware
+  -> avoid post mortem analysis
+
+  different mecanisms:
+    resources limitation (RAM, buffer...)
+    priorisation : a group can have a priority access to resources
+    accounting : consumed ressources are noticed
+    isolation : separation with namespace
+    group management : functions to stop, to clone, to restore, to back up context
+
+  cgroup facility
+  concept of tree
+  tree is created by the user who wants to established control
+  children branch will have same restriction as its father
+
+
+
+  may have different options about your system resources
+  some subsystem (=single res, as CPU time or memory) are very usefull: cpuact (generate reports cpu resources used by task), cpuset (allow what cpu are going to use), 
+  devices (subsystem with possibility to allow ou deny access to devices by tasks), freezer (suspend or resume task in a cgroup)
+  net_cls (tag packet with an identifier from a particular cgroup.) Traffic controler can assign != priorities to != cgroups
+
+  -> block devices is one of the most important part of the cgroups
+
+Seccomp
+  based on netfilter
+  can filter linux system commmands
+  -> on the paper is very powerfull
+  But limits :
+    can impact performance
+    child inherit restrictions (tricky)
+    valid only for well behaving applications
+
+
+Summary :
+  Quotas
+    Basic but available on most system
+    outdated by cgroups which should be prefered
+  Cgroups
+    powerfull and simple to use
+    under-use tool
+    deserve to spend few minutes on it
+    systemd has the capability to activate it
+  Seccomp
+    powerfull but limited use case
+    requires to patch each application source code
+
+Sources:
+https://www.linux.com/learn/overview-linux-kernel-security-features
+https://en.wikipedia.org/wiki/Disk_quota
+http://lea-linux.org/documentations/Admin-admin_fs-quotas

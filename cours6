@@ -1,0 +1,108 @@
+Vm & Containers
+
+Quite old techno
+started by IBM in 60's
+Application virtu with Java in 1995
+
+os VM with vimware in 1998, then container with docker in 2013
+before 2000, no cybersecurity
+really starting in 2010
+
+Virtualisation
+  several OS in the same hw
+    share CPU, RAM, I/O
+  enabling techno
+    cpu interruption
+    memory protection unit
+  lvl
+    application
+    desktop
+    hw
+    network
+    storage
+  !=  type
+    paravirtualisation
+    full virtu
+  Benefits & side effects
+    Benefits
+      strong isolation by hw
+      snapshot, usefull is in case of attack you can roll back in a know stable situation
+      -> cost a litle bit of money due to storage
+      replication
+    Side effects
+      large increase of os to maintain
+      great way to keep out of support OS
+      hypervisor become hacker target
+
+Containers
+  Light virtu (in general a bad idea, but can be a good solutions)
+  Build above NameSpaces
+  Really fast to be started
+    Ex, a container is used for each Gmail connection
+  Common in the use
+  Can be stack on top of a VM
+    Used because of snapshot and transfer
+
+Docker archi
+  Host, running a daemon
+  daemon creating virtual network with capabilities to connect containers
+  containers creating by images in a registry (docker hub)
+  instancing image to create containers
+  Openstack can dynamicly automate docker run
+  Clear Container : tech dedicated to intel hw
+  use hw virtu instead of namespaces
+    better isolation, done in the hw
+    don't same kernel
+    manipulated as docker containers
+    but longer to start, take more ram and cpu
+
+    Containers security
+      isolation is good, base on namespaces
+      content of your container is often unknow
+      no clue of is inside
+      containers in vm : can quickly get out of control
+      containers can be automated
+      ->good use : no data in container, updated
+
+    Security rules
+      use only safe repo
+      one application per container
+      no full os in container
+        minimal package set
+        no sharing of device
+          privileges allow to acces to hw devices
+        all traffic via network api
+        don't used them as root by with dedicated user
+      container are immutable
+        no data in container
+        no update, if needed, update by replacement
+          requires to test it
+
+      Troubleshooting
+        name spaces used by containers
+          everything is running is visible from host os
+        can see all network traffic
+          use network monitoring tools
+        short time life
+          need to log most possible in the host
+          systemd can be changed to freeze to analyse container
+
+      Limitations
+        same as namespaces
+          host kernel host propagates
+          not 100% host independant
+          test has to be done as close as possible to production
+        no introspection
+          host does not control containers
+          lib & utilises may carry CVEs
+          have to trust containers provider and used as trusted source as possible
+        easy to create a mess (bazar)
+          admin can get out of depth
+
+  Summary
+    namespaces are powerfull isolation application
+    mastering side effects is not easy
+    containers and systemd are great helpers
+    be careful to avoid to lose control of containers
+    -> its powerfull tools to limit movement of malicious code
+    

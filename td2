@@ -1,0 +1,81 @@
+Cgroup
+  cgcreate -g memory:/low
+  cgcreate -g memory:/high
+
+  cgset -r memory.limit_in_bytes=500M low
+  cgset -r memory.limit_in_bytes=700M high
+
+  #stress is a tool to used memory
+  yum install stress
+  cgexec -g memory:low stress --vm-bytes 750M --vm-keep -m 1
+  cgexec -g memory:high stress --vm-bytes 750M --vm-keep -m 1
+
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-memory#memory_example-usage
+https://www.rittmanmead.com/blog/2015/12/using-linux-control-groups-to-constrain-process-memory/
+
+
+Quotas
+
+#Creating users
+adduser john
+passwd john
+adduser peter
+passwd peter
+
+groupadd test
+usermod -a -G test john
+usermod -a -G test peter
+
+#to check the group
+id john
+id peter
+
+mkdir /peter_share
+
+#read right only for john, read write & execute for peter
+setfacl -R -m u:john:r /peter_share
+setfacl -R -m u:peter:rwx /peter_share
+
+#try with peter and john to check rights
+touch /peter_share/test
+
+#to format the partition before mount it
+mkfs.ext4 /dev/sdb
+lsblk
+  sda               8:0    0   20G  0 disk
+  ├─sda1            8:1    0    1G  0 part /boot
+  └─sda2            8:2    0   19G  0 part
+  ├─centos-root 253:0    0   17G  0 lvm  /
+  └─centos-swap 253:1    0    2G  0 lvm  [SWAP]
+  sdb               8:16   0    2G  0 disk /peter_share
+  sr0              11:0    1 1024M  0 rom
+  sr1              11:1    1 1024M  0 rom
+
+#To mount the partition
+mount -t ext4 /dev/vdb -o defaults,usrquota,grpquota /peter_share
+
+#Edit fstab file
+/dev/sdb	/peter_share	ext4	defaults,usrquota,grpquota 	0	0
+
+#quotaoff -avug: On désactive les quotas le temps de le configurer
+quotaoff -avug
+
+#quotacheck -vagum: On créer les fichier de quoté avec les bonne permissions (600)
+quotacheck -vagum
+  quotacheck: Parcours de /dev/sdb [/peter_share] terminé
+  quotacheck: Vérifié 2 répertoires et 2 fichiers
+
+ls -la /peter_share
+  -rw-------.  1 root root  6144  4 janv. 04:05 aquota.group
+  -rw-------.  1 root root  6144  4 janv. 04:05 aquota.user
+# quotaon -avug: On reactive les quotas
+quotaon -avug
+# edquota peter: On configure les quotas pour l'utilisateur `peter`. On lui attribue 8 Ko sur `/dev/vdb` en `hard` ce qui signifie qu'il ne peut pas dépasser cette limite.
+edquota peter
+
+(peter)$ cat /dev/zero > /peter_share/test_quota
+vdb: write failed, user block limit reached.
+cat: write error: Disk quota exceeded
+
+(peter)$ ls -la /peter_share
+-rw-rw-r-- 	1 	peter 	peter 8192 	Jan 	4 	17:35 	test_quota

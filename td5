@@ -1,0 +1,6 @@
+#Créer un container lxc
+>setenforce 0
+>lxc-create –n centos_lxc –t centos
+>chroot /var/lib/lxc/centos_lxc/rootfs passwd
+  plopplop
+>lxc-start -n centos_lxc –d

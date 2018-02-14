@@ -1,0 +1,68 @@
+Cours 3 : MAC
+
+Linux Security Module
+  started in 2005 by NSA
+  allow a 3rd party policy modules
+  LSM check different parameter (who, why, which ressources) when you make a system call
+  3 systems using LSM : SE linux (used in redhat and centos), Apparmor (ubuntu opensuse), smack (embedded world : tizen, agl)
+
+SELinux
+  also started in 2005 by NSA
+  goal was to have security defined by the admin
+  policy control subjects (users, processes, flows) and objects (files, I/O)
+  -> initrd don't have to be config as default
+
+  architecture
+    basic archi
+    an action is did : opening a file : SEL policy are first checked in the cache
+
+  sestatus : print sel status
+  once activated, you need a policy
+  permissiv : if there is a violation, there will be no reject or kill the process, it's just log an error
+  defined in /etc/selinux/policy_name
+  -> better way : everything which is not allowed is strictly forbidden
+
+  Subjects can affect objects
+    Domain are for Subjects (-> Users)
+  Objects are manipulated by subjects
+    Types are for objects (-> Files)
+
+  SEL Multi Level Security
+  quickly really complexe
+  capability to classifiy access
+
+  SEL : powerfull system
+  almost impossible to master
+  must to trust made rules
+  by default, outside packages are not included in SEL : only controls what it knows
+
+  label : context of a file
+  context : collection of security related information to help SELinux to make access control decisions
+    ...
+    -rw-r--r--. root root system_u:object_r:etc_t:s0       /etc/logrotate.conf
+    ...
+    system_u : SELinux users, each linux user account is mapped to a SELinux user
+    object_r : SELinux role
+    etc_t : domain, what types the file belongs to, confine processes to act with only a certain types of files and no more
+    s0 : sensitivity of the resources
+
+    allow httpd_t httpd_sys_content_t : file { ioctl read getattr lock open } ;
+    This says that the httpd daemon (the Apache web server) has I/O control, read, get attribute, lock, and open access to files of the httpdsyscontent type
+
+    To see mapping between linux users and SELinux users
+    >semanage login -l
+
+    SELinux users :
+    guest_u: This user doesn't have access to X-Window system (GUI) or networking and can't execute su / sudo command.
+    xguest_u: This user has access to GUI tools and networking is available via Firefox browser.
+    user_u: This user has more access than the guest accounts (GUI and networking), but can't switch users by running su or sudo.
+    staff_u: Same rights as user_u, except it can execute sudo command to have root privileges.
+    system_u: This user is meant for running system services and not to be mapped to regular user accounts.
+
+    Can be checked by :
+    >id -Z
+
+
+  Seccomp-BPF
+    System call filtering
+    restriction are not inherited by children process
