@@ -1,0 +1,95 @@
+2 ways to be infected :
+-worms
+-install smmthg/virus at startup time -> undetectable
+-install worms & virus in production code
+
+important to work with pro. OS : redhat, opensuze
+-> reproduction & check of the code
+
+How the system boot & how to get into it ?
+-> worm in server/embedded device try to change the way the system start
+
+Table of content :
+Linux boot
+Systemd
+Uid/gui/sudo
+Extended ACL
+Workshop
+
+Boot process :
+  reset : jump to a given @
+  power on : stop all hw, most pc doesnt clean the ram, the initialize hw
+  table ACPI : describe hw to the linux kernel -> compare the ACPI and the hw
+  on embedded system : no Bios because ARM sauf using 'device tree', simplest, fatest,
+  but has to be changed if the device is change
+  Drivers are run in the kernel with the same privileges
+  Good point -> extremely fast
+
+  Most of the PC : UEFI bios -> can run specific code, made decision
+  2 partitions on yur system : GPT (fat32)
+  1st partition has to be fat : but no protection, offline attack (on hw for ex) is possible
+  secure partition : check that 1st piece of code used by UEFI as a valid digest
+
+  grub 2 has licence GPL3
+
+  ARM : uboot, equivalent to grub
+
+BIOS :
+  initialise the hw
+  on serveur u can configure a dedicated IP @ to access to the boot
+
+GRUB2 :
+  2nd lvl boot
+  entire operating system : can run code, tasks, usefull to troubleshootin, but dangerous if not understanding
+  may have to erase some plugins (but not easy)
+  load non signed kernel
+  considering that physical protection is enough is quietly true
+  never connect your server & ip boot dedicated @ on the same network that the company
+  way to protect kernel : encrypt it -> at the start decrypt it, load, & then encrypt it
+  systemdboot : less flexible, more hard to troubleshooting, works in the same way,
+
+
+  Kernel command line :
+    modules can be insered in grub
+    load luks to mount encrypted part
+    traditionnaly kernel is in /boot
+    Initrd : included the initramfs
+    you have a kernel that have to boot from a hard drive
+    LVM : can snapshot and manager your partitions
+
+    [...]
+    load by the chipset before loading the linux
+    initramfs has to be mounted in a temporary file in ram
+    structure of the initramfs change in function of
+
+  Initrd/initramfs
+    once booted,
+
+  Systemd
+    start service by dependencies
+    init tab : set of scripts without dependecies
+    manage dep by system languages,
+    start everything in //, based on a complex set on symlin
+    detect if service is fulling down and restart it
+    can manage user commands, tasks, can start tasks on trigger
+
+  Session manager
+    start the user session
+    on command line system, start the network manager
+    no need to be root to modify session manager code
+    system admin has to be dedicated login to admin
+    protection :
+on a server : never activate SSH as root
+
+  UID
+    except on ubuntu, each users are in the groupe Users
+
+  Conclusion
+    boot ps is complex
+    uefi and grub run on FAT partitions
+    linux embedded is not better
+    initramfs, systemd, init manager -> weak
+    something installed in the boot -> we will never notice it in Linux
+
+    install gpsd (not provided by centOS)
+    create a systemd configuration set that will start only if someone make a request on gpsd socket

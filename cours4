@@ -1,0 +1,99 @@
+Networking security in Linux
+
+-> control what get in and get out of your system
+
+Firewall
+  isolation between network interfaces
+  restricted routing and forwarding
+  protect services from external network
+  external : Internet or other internal network
+  higly configurable and has to be secured
+
+Network domains
+  internal : with servers, workstation ..
+  external : internet
+  DMZ : area which receive some traffic from the outside world
+  and have some access to the internal network
+  ex : network with only few specifics applications
+
+Network interfaces
+  used by fw
+  real: wired, wifi, Bluetooth
+  virtual: bridge, vpn,
+  -> fw intercepts and treat data
+
+Iptables
+  applied on interface
+  set of rules on any IP @, protocol, port ...
+  possibility to tag application
+  input : the fw is the destination
+  output : the fw is the emitter
+  forward : the fw is in the midle of the transmission
+  throttling : avoid a service to overtake a bandwidth limit
+  port redirection
+    NAT
+
+  Iptable IN
+    for ex
+      defin an acceptable connection (new)
+      allow existing connection
+      drop all (allow only white list)
+
+  Iptable OUT
+      usually, very strict on incoming traffic
+      and flexible on outgoing traffic
+      define src/dest allowed
+      allow existing connection
+
+  Iptable Throttling
+    allow restrict any service but limit it to fair usage
+    protection against DoS
+    safe minimal bandwidth for emergency ssh connection
+    ex : create limit on icmp to 1 req/s
+
+ -> configuring firewall is complex
+ iptables are really complexe
+ nftables is easier but still not obvious
+ use tools instead of : firewalld, easy firewall (user web int), shorewall
+
+Troubleshooting a firewall
+  traffic generation
+    telnet & ping can change port
+    nmap
+  traffic monitoring
+    wireshark
+    tcpdump
+    iptop
+    -> when you listen on your firewall with a tools, you analyze traffic BEFORE the fw apply its rules
+
+Dedicated firewall distro
+  OpenWRT
+    run on pc and dedicated harware (cheaper and easy to maintain)
+    integrated software update
+    configuration is independant from the distro
+    all configuration as meta data
+    good tool to implement Access Point for wifi
+
+  IpFire
+    dedicated fw to linux distro
+    easy configurable
+
+  Specialised hw
+    Cisco ...
+
+Summary
+  iptable / nf table
+    base for packet manipulation
+    dangerous and hard to configure by hand
+    unrecommandable on production
+
+  Firewall tool
+    safer than iptables
+    dscribe firewall as meta data
+    create correct iptable
+
+  Isolation
+    obvious at Internet entry point
+    valuable on any connected device
+    including virtual machine and container
+    white listing startegy shall prevail

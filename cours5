@@ -1,0 +1,68 @@
+Linux Namespace
+
+-> recent, litle people heard about it
+started in 1980
+targeting embedded systems
+knew when containers showned up
+
+Namespace
+  create parallel world
+  share same kernel
+  kernel keeps each world isolated
+  create subsystem like layer, with more or less transparency
+  different use as virtualization
+
+  various namespaces
+  interest : for cgroups avoid too many children
+  mount point is one of the most complexe
+  ->its avoid to share some part
+
+  Network namespaces
+  creating virtual interfaces, linked to the parenti by a virtual bridge
+
+  user & group namespaces
+  cloning root users
+  interest : seen as root in namespace but not in fact
+  no cross visibility between child namespaces
+
+  Process ID namespaces
+  init : PID 1
+  PID 1 maps as a normal PID in parent name spaces
+  each name space has its PID 1
+
+  Mount namespaces
+  cloning mount point
+  similir to chroot
+  in fact we have many / system
+  virtual drive mapped on a directory
+  multipe mount mode are available : shared; private; slave; unbindable
+  -> propagation rules required attention
+
+  Cgroup and MAC namespaces
+    cgroup
+      enable some control by namespaes
+      avoid to share critical data
+    MAC
+      requires directory poly-instantation
+      available for SELinux
+
+  Other NS
+    systemd
+      to boot a systemd in a systemd
+
+  ->share the same kernel so it's not virtualization
+  -> win10 provide a linux API to create openSuse or Ubuntu ns
+
+  how to use it
+    Docker, LXC, virtual zone
+    Manually by hand, easy route by systemd
+    ns are less secure than they look but better than nothing
+    -> try and check side effects
+
+  Summary
+    -> provide a powerfull cross application isolation
+    mastering side effect is not easy, containers or systemd are great helpers
+    danger with container is to loose control of what is running in the system (docker is dangerously simple)
+    powerful tools to limit movement of malicious code in an infected system
+
+  ->check Linux Magazine on NS
